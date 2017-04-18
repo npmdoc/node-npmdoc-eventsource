@@ -49,9 +49,9 @@
 <h1>api documentation for
     <a
 
-        href="http://github.com/aslakhellesoy/eventsource"
+        href="http://github.com/EventSource/eventsource"
 
-    >eventsource (v0.2.2)</a>
+    >eventsource (v1.0.0)</a>
 </h1>
 <h4>W3C compliant EventSource client for Node.js and browser (polyfill)</h4>
 <div class="apidocSectionDiv"><a
@@ -60,6 +60,15 @@
 ><h1>table of contents</h1></a><ol>
 
     <li class="apidocModuleLi"><a href="#apidoc.module.eventsource">module eventsource</a><ol>
+
+        <li>
+
+            <a class="apidocElementLiA" href="#apidoc.element.eventsource.eventsource">
+            function <span class="apidocSignatureSpan"></span>eventsource
+            <span class="apidocSignatureSpan">(url, eventSourceInitDict)</span>
+            </a>
+
+        </li>
 
         <li>
 
@@ -88,12 +97,243 @@
 
         </li>
 
+        <li>
+
+            <span class="apidocSignatureSpan">object <span class="apidocSignatureSpan">eventsource.</span>eventsource.prototype</span>
+
+        </li>
+
+    </ol></li>
+
+    <li class="apidocModuleLi"><a href="#apidoc.module.eventsource.eventsource">module eventsource.eventsource</a><ol>
+
+        <li>
+
+            <a class="apidocElementLiA" href="#apidoc.element.eventsource.eventsource.eventsource">
+            function <span class="apidocSignatureSpan">eventsource.</span>eventsource
+            <span class="apidocSignatureSpan">(url, eventSourceInitDict)</span>
+            </a>
+
+        </li>
+
+        <li>
+
+            <a class="apidocElementLiA" href="#apidoc.element.eventsource.eventsource.super_">
+            function <span class="apidocSignatureSpan">eventsource.eventsource.</span>super_
+            <span class="apidocSignatureSpan">()</span>
+            </a>
+
+        </li>
+
+        <li>
+
+            <span class="apidocSignatureSpan">number <span class="apidocSignatureSpan">eventsource.eventsource.</span>CLOSED</span>
+
+        </li>
+
+        <li>
+
+            <span class="apidocSignatureSpan">number <span class="apidocSignatureSpan">eventsource.eventsource.</span>CONNECTING</span>
+
+        </li>
+
+        <li>
+
+            <span class="apidocSignatureSpan">number <span class="apidocSignatureSpan">eventsource.eventsource.</span>OPEN</span>
+
+        </li>
+
+    </ol></li>
+
+    <li class="apidocModuleLi"><a href="#apidoc.module.eventsource.eventsource.prototype">module eventsource.eventsource.prototype</a><ol>
+
+        <li>
+
+            <a class="apidocElementLiA" href="#apidoc.element.eventsource.eventsource.prototype.addEventListener">
+            function <span class="apidocSignatureSpan">eventsource.eventsource.prototype.</span>addEventListener
+            <span class="apidocSignatureSpan">(type, listener)</span>
+            </a>
+
+        </li>
+
+        <li>
+
+            <a class="apidocElementLiA" href="#apidoc.element.eventsource.eventsource.prototype.removeEventListener">
+            function <span class="apidocSignatureSpan">eventsource.eventsource.prototype.</span>removeEventListener
+            <span class="apidocSignatureSpan">(type, listener)</span>
+            </a>
+
+        </li>
+
+        <li>
+
+            <span class="apidocSignatureSpan">number <span class="apidocSignatureSpan">eventsource.eventsource.prototype.</span>CLOSED</span>
+
+        </li>
+
+        <li>
+
+            <span class="apidocSignatureSpan">number <span class="apidocSignatureSpan">eventsource.eventsource.prototype.</span>CONNECTING</span>
+
+        </li>
+
+        <li>
+
+            <span class="apidocSignatureSpan">number <span class="apidocSignatureSpan">eventsource.eventsource.prototype.</span>OPEN</span>
+
+        </li>
+
     </ol></li>
 
 </ol></div>
 
 <div class="apidocSectionDiv">
 <h1><a href="#apidoc.module.eventsource" id="apidoc.module.eventsource">module eventsource</a></h1>
+
+
+    <h2>
+        <a href="#apidoc.element.eventsource.eventsource" id="apidoc.element.eventsource.eventsource">
+        function <span class="apidocSignatureSpan"></span>eventsource
+        <span class="apidocSignatureSpan">(url, eventSourceInitDict)</span>
+        </a>
+    </h2>
+    <ul>
+    <li>description and source-code<pre class="apidocCodePre">function EventSource(url, eventSourceInitDict) {
+  var readyState = EventSource.CONNECTING
+  Object.defineProperty(this, &#x27;readyState&#x27;, {
+    get: function () {
+      return readyState
+    }
+  })
+
+  Object.defineProperty(this, &#x27;url&#x27;, {
+    get: function () {
+      return url
+    }
+  })
+
+  var self = this
+  self.reconnectInterval = 1000
+
+  function onConnectionClosed () {
+    if (readyState === EventSource.CLOSED) return
+    readyState = EventSource.CONNECTING
+    _emit(&#x27;error&#x27;, new Event(&#x27;error&#x27;))
+
+    // The url may have been changed by a temporary
+    // redirect. If that&#x27;s the case, revert it now.
+    if (reconnectUrl) {
+      url = reconnectUrl
+      reconnectUrl = null
+    }
+    setTimeout(function () {
+      if (readyState !== EventSource.CONNECTING) {
+        return
+      }
+      connect()
+    }, self.reconnectInterval)
+  }
+
+  var req
+  var lastEventId = &#x27;&#x27;
+  if (eventSourceInitDict &#x26;&#x26; eventSourceInitDict.headers &#x26;&#x26; eventSourceInitDict.headers[&#x27;Last-Event-ID&#x27;]) {
+    lastEventId = eventSourceInitDict.headers[&#x27;Last-Event-ID&#x27;]
+    delete eventSourceInitDict.headers[&#x27;Last-Event-ID&#x27;]
+  }
+
+  var discardTrailingNewline = false
+  var data = &#x27;&#x27;
+  var eventName = &#x27;&#x27;
+
+  var reconnectUrl = null
+
+  function connect () {
+    var options = parse(url)
+    var isSecure = options.protocol === &#x27;https:&#x27;
+    options.headers = { &#x27;Cache-Control&#x27;: &#x27;no-cache&#x27;, &#x27;Accept&#x27;: &#x27;text/event-stream&#x27; }
+    if (lastEventId) options.headers[&#x27;Last-Event-ID&#x27;] = lastEventId
+    if (eventSourceInitDict &#x26;&#x26; eventSourceInitDict.headers) {
+      for (var i in eventSourceInitDict.headers) {
+        var header = eventSourceInitDict.headers[i]
+        if (header) {
+          options.headers[i] = header
+        }
+      }
+    }
+
+    // Legacy: this should be specified as `eventSourceInitDict.https.rejectUnauthorized`,
+    // but for now exists as a backwards-compatibility layer
+    options.rejectUnauthorized = !(eventSourceInitDict &#x26;&#x26; !eventSourceInitDict.rejectUnauthorized)
+
+    // If specify http proxy, make the request to sent to the proxy server,
+    // and include the original url in path and Host headers
+    if (eventSourceInitDict &#x26;&#x26; eventSourceInitDict.proxy) {
+      var proxy = parse(eventSourceInitDict.proxy)
+      options.path = url
+      options.headers.Host = options.host
+      options.hostname = proxy.hostname
+      options.host = proxy.host
+      options.port = proxy.port
+    }
+
+    // If https options are specified, merge them into the request options
+    if (eventSourceInitDict &#x26;&#x26; eventSourceInitDict.https) {
+      for (var optName in eventSourceInitDict.https) {
+        if (httpsOptions.indexOf(optName) === -1) {
+          continue
+        }
+
+        var option = eventSourceInitDict.https[optName]
+        if (option !== undefined) {
+          options[optName] = option
+        }
+      }
+    }
+
+    req = (isSecure ? https : http).request(options, function (res) {
+      // Handle HTTP redirects
+      if (res.statusCode === 301 || res.statusCode === 307) {
+        if (!res.headers.location) {
+          // Server sent redirect response without Location header.
+          _emit(&#x27;error&#x27;, new Event(&#x27;error&#x27;, {status: res.statusCode}))
+          return
+        }
+        if (res.statusCode === 307) reconnectUrl = url
+        url = res.headers.location
+        process.nextTick(connect)
+        return
+      }
+
+      if (res.statusCode !== 200) {
+        _emit(&#x27;error&#x27;, new Event(&#x27;error&#x27;, {status: res.statusCode}))
+        return self.close()
+      }
+
+      readyState = EventSource.OPEN
+      res.on(&#x27;close&#x27;, function () {
+        res.removeAllListeners(&#x27;close&#x27;)
+        res.removeAllListeners(&#x27;end&#x27;)
+        onConnectionClosed()
+      })
+
+      res.on(&#x27;end&#x27;, function () {
+        res.removeAllListeners(&#x27;close&#x27;)
+        res.removeAllListeners(&#x27;end&#x27;)
+        onConnectionClosed()
+      })
+      _emit(&#x27;open&#x27;, new Event(&#x27;open&#x27;))
+
+      // text/event-stream parser adapted from webkit&#x27;s
+      // Source/WebCore/page/EventSource.cpp
+      var buf = &#x27;&#x27;
+      res.on(&#x27;data&#x27;, function (chunk) {
+        buf += chunk
+
+        var pos = 0
+        var length = buf.length ...</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    </ul>
+
 
 
     <h2>
@@ -105,6 +345,227 @@
     <ul>
     <li>description and source-code<pre class="apidocCodePre">function EventEmitter() {
   EventEmitter.init.call(this);
+}</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    </ul>
+
+
+
+
+
+
+
+
+
+
+</div>
+
+<div class="apidocSectionDiv">
+<h1><a href="#apidoc.module.eventsource.eventsource" id="apidoc.module.eventsource.eventsource">module eventsource.eventsource</a></h1>
+
+
+    <h2>
+        <a href="#apidoc.element.eventsource.eventsource.eventsource" id="apidoc.element.eventsource.eventsource.eventsource">
+        function <span class="apidocSignatureSpan">eventsource.</span>eventsource
+        <span class="apidocSignatureSpan">(url, eventSourceInitDict)</span>
+        </a>
+    </h2>
+    <ul>
+    <li>description and source-code<pre class="apidocCodePre">function EventSource(url, eventSourceInitDict) {
+  var readyState = EventSource.CONNECTING
+  Object.defineProperty(this, &#x27;readyState&#x27;, {
+    get: function () {
+      return readyState
+    }
+  })
+
+  Object.defineProperty(this, &#x27;url&#x27;, {
+    get: function () {
+      return url
+    }
+  })
+
+  var self = this
+  self.reconnectInterval = 1000
+
+  function onConnectionClosed () {
+    if (readyState === EventSource.CLOSED) return
+    readyState = EventSource.CONNECTING
+    _emit(&#x27;error&#x27;, new Event(&#x27;error&#x27;))
+
+    // The url may have been changed by a temporary
+    // redirect. If that&#x27;s the case, revert it now.
+    if (reconnectUrl) {
+      url = reconnectUrl
+      reconnectUrl = null
+    }
+    setTimeout(function () {
+      if (readyState !== EventSource.CONNECTING) {
+        return
+      }
+      connect()
+    }, self.reconnectInterval)
+  }
+
+  var req
+  var lastEventId = &#x27;&#x27;
+  if (eventSourceInitDict &#x26;&#x26; eventSourceInitDict.headers &#x26;&#x26; eventSourceInitDict.headers[&#x27;Last-Event-ID&#x27;]) {
+    lastEventId = eventSourceInitDict.headers[&#x27;Last-Event-ID&#x27;]
+    delete eventSourceInitDict.headers[&#x27;Last-Event-ID&#x27;]
+  }
+
+  var discardTrailingNewline = false
+  var data = &#x27;&#x27;
+  var eventName = &#x27;&#x27;
+
+  var reconnectUrl = null
+
+  function connect () {
+    var options = parse(url)
+    var isSecure = options.protocol === &#x27;https:&#x27;
+    options.headers = { &#x27;Cache-Control&#x27;: &#x27;no-cache&#x27;, &#x27;Accept&#x27;: &#x27;text/event-stream&#x27; }
+    if (lastEventId) options.headers[&#x27;Last-Event-ID&#x27;] = lastEventId
+    if (eventSourceInitDict &#x26;&#x26; eventSourceInitDict.headers) {
+      for (var i in eventSourceInitDict.headers) {
+        var header = eventSourceInitDict.headers[i]
+        if (header) {
+          options.headers[i] = header
+        }
+      }
+    }
+
+    // Legacy: this should be specified as `eventSourceInitDict.https.rejectUnauthorized`,
+    // but for now exists as a backwards-compatibility layer
+    options.rejectUnauthorized = !(eventSourceInitDict &#x26;&#x26; !eventSourceInitDict.rejectUnauthorized)
+
+    // If specify http proxy, make the request to sent to the proxy server,
+    // and include the original url in path and Host headers
+    if (eventSourceInitDict &#x26;&#x26; eventSourceInitDict.proxy) {
+      var proxy = parse(eventSourceInitDict.proxy)
+      options.path = url
+      options.headers.Host = options.host
+      options.hostname = proxy.hostname
+      options.host = proxy.host
+      options.port = proxy.port
+    }
+
+    // If https options are specified, merge them into the request options
+    if (eventSourceInitDict &#x26;&#x26; eventSourceInitDict.https) {
+      for (var optName in eventSourceInitDict.https) {
+        if (httpsOptions.indexOf(optName) === -1) {
+          continue
+        }
+
+        var option = eventSourceInitDict.https[optName]
+        if (option !== undefined) {
+          options[optName] = option
+        }
+      }
+    }
+
+    req = (isSecure ? https : http).request(options, function (res) {
+      // Handle HTTP redirects
+      if (res.statusCode === 301 || res.statusCode === 307) {
+        if (!res.headers.location) {
+          // Server sent redirect response without Location header.
+          _emit(&#x27;error&#x27;, new Event(&#x27;error&#x27;, {status: res.statusCode}))
+          return
+        }
+        if (res.statusCode === 307) reconnectUrl = url
+        url = res.headers.location
+        process.nextTick(connect)
+        return
+      }
+
+      if (res.statusCode !== 200) {
+        _emit(&#x27;error&#x27;, new Event(&#x27;error&#x27;, {status: res.statusCode}))
+        return self.close()
+      }
+
+      readyState = EventSource.OPEN
+      res.on(&#x27;close&#x27;, function () {
+        res.removeAllListeners(&#x27;close&#x27;)
+        res.removeAllListeners(&#x27;end&#x27;)
+        onConnectionClosed()
+      })
+
+      res.on(&#x27;end&#x27;, function () {
+        res.removeAllListeners(&#x27;close&#x27;)
+        res.removeAllListeners(&#x27;end&#x27;)
+        onConnectionClosed()
+      })
+      _emit(&#x27;open&#x27;, new Event(&#x27;open&#x27;))
+
+      // text/event-stream parser adapted from webkit&#x27;s
+      // Source/WebCore/page/EventSource.cpp
+      var buf = &#x27;&#x27;
+      res.on(&#x27;data&#x27;, function (chunk) {
+        buf += chunk
+
+        var pos = 0
+        var length = buf.length ...</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    </ul>
+
+
+
+    <h2>
+        <a href="#apidoc.element.eventsource.eventsource.super_" id="apidoc.element.eventsource.eventsource.super_">
+        function <span class="apidocSignatureSpan">eventsource.eventsource.</span>super_
+        <span class="apidocSignatureSpan">()</span>
+        </a>
+    </h2>
+    <ul>
+    <li>description and source-code<pre class="apidocCodePre">function EventEmitter() {
+  EventEmitter.init.call(this);
+}</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    </ul>
+
+
+
+
+
+
+
+
+</div>
+
+<div class="apidocSectionDiv">
+<h1><a href="#apidoc.module.eventsource.eventsource.prototype" id="apidoc.module.eventsource.eventsource.prototype">module eventsource.eventsource.prototype</a></h1>
+
+
+    <h2>
+        <a href="#apidoc.element.eventsource.eventsource.prototype.addEventListener" id="apidoc.element.eventsource.eventsource.prototype.addEventListener">
+        function <span class="apidocSignatureSpan">eventsource.eventsource.prototype.</span>addEventListener
+        <span class="apidocSignatureSpan">(type, listener)</span>
+        </a>
+    </h2>
+    <ul>
+    <li>description and source-code<pre class="apidocCodePre">function addEventListener(type, listener) {
+  if (typeof listener === &#x27;function&#x27;) {
+    // store a reference so we can return the original function again
+    listener._listener = listener
+    this.on(type, listener)
+  }
+}</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    </ul>
+
+
+
+    <h2>
+        <a href="#apidoc.element.eventsource.eventsource.prototype.removeEventListener" id="apidoc.element.eventsource.eventsource.prototype.removeEventListener">
+        function <span class="apidocSignatureSpan">eventsource.eventsource.prototype.</span>removeEventListener
+        <span class="apidocSignatureSpan">(type, listener)</span>
+        </a>
+    </h2>
+    <ul>
+    <li>description and source-code<pre class="apidocCodePre">function removeEventListener(type, listener) {
+  if (typeof listener === &#x27;function&#x27;) {
+    listener._listener = undefined
+    this.removeListener(type, listener)
+  }
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">n/a</pre></li>
     </ul>

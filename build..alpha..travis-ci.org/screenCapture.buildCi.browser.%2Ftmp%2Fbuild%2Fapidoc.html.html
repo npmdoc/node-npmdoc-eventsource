@@ -1,4 +1,4 @@
-<div class="apidocDiv">
+<html><head></head><body><div class="apidocDiv">
 <style>
 /*csslint
 */
@@ -47,17 +47,10 @@
 }
 </style>
 <h1>api documentation for
-    <a
-
-        href="http://github.com/EventSource/eventsource"
-
-    >eventsource (v1.0.0)</a>
+    <a href="http://github.com/EventSource/eventsource">eventsource (v1.0.0)</a>
 </h1>
 <h4>W3C compliant EventSource client for Node.js and browser (polyfill)</h4>
-<div class="apidocSectionDiv"><a
-    href="#apidoc.tableOfContents"
-    id="apidoc.tableOfContents"
-><h1>table of contents</h1></a><ol>
+<div class="apidocSectionDiv"><a href="#apidoc.tableOfContents" id="apidoc.tableOfContents"><h1>table of contents</h1></a><ol>
 
     <li class="apidocModuleLi"><a href="#apidoc.module.eventsource">module eventsource</a><ol>
 
@@ -200,13 +193,13 @@
     <ul>
     <li>description and source-code<pre class="apidocCodePre">function EventSource(url, eventSourceInitDict) {
   var readyState = EventSource.CONNECTING
-  Object.defineProperty(this, &#x27;readyState&#x27;, {
+  Object.defineProperty(this, 'readyState', {
     get: function () {
       return readyState
     }
   })
 
-  Object.defineProperty(this, &#x27;url&#x27;, {
+  Object.defineProperty(this, 'url', {
     get: function () {
       return url
     }
@@ -218,10 +211,10 @@
   function onConnectionClosed () {
     if (readyState === EventSource.CLOSED) return
     readyState = EventSource.CONNECTING
-    _emit(&#x27;error&#x27;, new Event(&#x27;error&#x27;))
+    _emit('error', new Event('error'))
 
     // The url may have been changed by a temporary
-    // redirect. If that&#x27;s the case, revert it now.
+    // redirect. If that's the case, revert it now.
     if (reconnectUrl) {
       url = reconnectUrl
       reconnectUrl = null
@@ -235,24 +228,24 @@
   }
 
   var req
-  var lastEventId = &#x27;&#x27;
-  if (eventSourceInitDict &#x26;&#x26; eventSourceInitDict.headers &#x26;&#x26; eventSourceInitDict.headers[&#x27;Last-Event-ID&#x27;]) {
-    lastEventId = eventSourceInitDict.headers[&#x27;Last-Event-ID&#x27;]
-    delete eventSourceInitDict.headers[&#x27;Last-Event-ID&#x27;]
+  var lastEventId = ''
+  if (eventSourceInitDict &amp;&amp; eventSourceInitDict.headers &amp;&amp; eventSourceInitDict.headers['Last-Event-ID']) {
+    lastEventId = eventSourceInitDict.headers['Last-Event-ID']
+    delete eventSourceInitDict.headers['Last-Event-ID']
   }
 
   var discardTrailingNewline = false
-  var data = &#x27;&#x27;
-  var eventName = &#x27;&#x27;
+  var data = ''
+  var eventName = ''
 
   var reconnectUrl = null
 
   function connect () {
     var options = parse(url)
-    var isSecure = options.protocol === &#x27;https:&#x27;
-    options.headers = { &#x27;Cache-Control&#x27;: &#x27;no-cache&#x27;, &#x27;Accept&#x27;: &#x27;text/event-stream&#x27; }
-    if (lastEventId) options.headers[&#x27;Last-Event-ID&#x27;] = lastEventId
-    if (eventSourceInitDict &#x26;&#x26; eventSourceInitDict.headers) {
+    var isSecure = options.protocol === 'https:'
+    options.headers = { 'Cache-Control': 'no-cache', 'Accept': 'text/event-stream' }
+    if (lastEventId) options.headers['Last-Event-ID'] = lastEventId
+    if (eventSourceInitDict &amp;&amp; eventSourceInitDict.headers) {
       for (var i in eventSourceInitDict.headers) {
         var header = eventSourceInitDict.headers[i]
         if (header) {
@@ -263,11 +256,11 @@
 
     // Legacy: this should be specified as `eventSourceInitDict.https.rejectUnauthorized`,
     // but for now exists as a backwards-compatibility layer
-    options.rejectUnauthorized = !(eventSourceInitDict &#x26;&#x26; !eventSourceInitDict.rejectUnauthorized)
+    options.rejectUnauthorized = !(eventSourceInitDict &amp;&amp; !eventSourceInitDict.rejectUnauthorized)
 
     // If specify http proxy, make the request to sent to the proxy server,
     // and include the original url in path and Host headers
-    if (eventSourceInitDict &#x26;&#x26; eventSourceInitDict.proxy) {
+    if (eventSourceInitDict &amp;&amp; eventSourceInitDict.proxy) {
       var proxy = parse(eventSourceInitDict.proxy)
       options.path = url
       options.headers.Host = options.host
@@ -277,7 +270,7 @@
     }
 
     // If https options are specified, merge them into the request options
-    if (eventSourceInitDict &#x26;&#x26; eventSourceInitDict.https) {
+    if (eventSourceInitDict &amp;&amp; eventSourceInitDict.https) {
       for (var optName in eventSourceInitDict.https) {
         if (httpsOptions.indexOf(optName) === -1) {
           continue
@@ -295,7 +288,7 @@
       if (res.statusCode === 301 || res.statusCode === 307) {
         if (!res.headers.location) {
           // Server sent redirect response without Location header.
-          _emit(&#x27;error&#x27;, new Event(&#x27;error&#x27;, {status: res.statusCode}))
+          _emit('error', new Event('error', {status: res.statusCode}))
           return
         }
         if (res.statusCode === 307) reconnectUrl = url
@@ -305,28 +298,28 @@
       }
 
       if (res.statusCode !== 200) {
-        _emit(&#x27;error&#x27;, new Event(&#x27;error&#x27;, {status: res.statusCode}))
+        _emit('error', new Event('error', {status: res.statusCode}))
         return self.close()
       }
 
       readyState = EventSource.OPEN
-      res.on(&#x27;close&#x27;, function () {
-        res.removeAllListeners(&#x27;close&#x27;)
-        res.removeAllListeners(&#x27;end&#x27;)
+      res.on('close', function () {
+        res.removeAllListeners('close')
+        res.removeAllListeners('end')
         onConnectionClosed()
       })
 
-      res.on(&#x27;end&#x27;, function () {
-        res.removeAllListeners(&#x27;close&#x27;)
-        res.removeAllListeners(&#x27;end&#x27;)
+      res.on('end', function () {
+        res.removeAllListeners('close')
+        res.removeAllListeners('end')
         onConnectionClosed()
       })
-      _emit(&#x27;open&#x27;, new Event(&#x27;open&#x27;))
+      _emit('open', new Event('open'))
 
-      // text/event-stream parser adapted from webkit&#x27;s
+      // text/event-stream parser adapted from webkit's
       // Source/WebCore/page/EventSource.cpp
-      var buf = &#x27;&#x27;
-      res.on(&#x27;data&#x27;, function (chunk) {
+      var buf = ''
+      res.on('data', function (chunk) {
         buf += chunk
 
         var pos = 0
@@ -373,13 +366,13 @@
     <ul>
     <li>description and source-code<pre class="apidocCodePre">function EventSource(url, eventSourceInitDict) {
   var readyState = EventSource.CONNECTING
-  Object.defineProperty(this, &#x27;readyState&#x27;, {
+  Object.defineProperty(this, 'readyState', {
     get: function () {
       return readyState
     }
   })
 
-  Object.defineProperty(this, &#x27;url&#x27;, {
+  Object.defineProperty(this, 'url', {
     get: function () {
       return url
     }
@@ -391,10 +384,10 @@
   function onConnectionClosed () {
     if (readyState === EventSource.CLOSED) return
     readyState = EventSource.CONNECTING
-    _emit(&#x27;error&#x27;, new Event(&#x27;error&#x27;))
+    _emit('error', new Event('error'))
 
     // The url may have been changed by a temporary
-    // redirect. If that&#x27;s the case, revert it now.
+    // redirect. If that's the case, revert it now.
     if (reconnectUrl) {
       url = reconnectUrl
       reconnectUrl = null
@@ -408,24 +401,24 @@
   }
 
   var req
-  var lastEventId = &#x27;&#x27;
-  if (eventSourceInitDict &#x26;&#x26; eventSourceInitDict.headers &#x26;&#x26; eventSourceInitDict.headers[&#x27;Last-Event-ID&#x27;]) {
-    lastEventId = eventSourceInitDict.headers[&#x27;Last-Event-ID&#x27;]
-    delete eventSourceInitDict.headers[&#x27;Last-Event-ID&#x27;]
+  var lastEventId = ''
+  if (eventSourceInitDict &amp;&amp; eventSourceInitDict.headers &amp;&amp; eventSourceInitDict.headers['Last-Event-ID']) {
+    lastEventId = eventSourceInitDict.headers['Last-Event-ID']
+    delete eventSourceInitDict.headers['Last-Event-ID']
   }
 
   var discardTrailingNewline = false
-  var data = &#x27;&#x27;
-  var eventName = &#x27;&#x27;
+  var data = ''
+  var eventName = ''
 
   var reconnectUrl = null
 
   function connect () {
     var options = parse(url)
-    var isSecure = options.protocol === &#x27;https:&#x27;
-    options.headers = { &#x27;Cache-Control&#x27;: &#x27;no-cache&#x27;, &#x27;Accept&#x27;: &#x27;text/event-stream&#x27; }
-    if (lastEventId) options.headers[&#x27;Last-Event-ID&#x27;] = lastEventId
-    if (eventSourceInitDict &#x26;&#x26; eventSourceInitDict.headers) {
+    var isSecure = options.protocol === 'https:'
+    options.headers = { 'Cache-Control': 'no-cache', 'Accept': 'text/event-stream' }
+    if (lastEventId) options.headers['Last-Event-ID'] = lastEventId
+    if (eventSourceInitDict &amp;&amp; eventSourceInitDict.headers) {
       for (var i in eventSourceInitDict.headers) {
         var header = eventSourceInitDict.headers[i]
         if (header) {
@@ -436,11 +429,11 @@
 
     // Legacy: this should be specified as `eventSourceInitDict.https.rejectUnauthorized`,
     // but for now exists as a backwards-compatibility layer
-    options.rejectUnauthorized = !(eventSourceInitDict &#x26;&#x26; !eventSourceInitDict.rejectUnauthorized)
+    options.rejectUnauthorized = !(eventSourceInitDict &amp;&amp; !eventSourceInitDict.rejectUnauthorized)
 
     // If specify http proxy, make the request to sent to the proxy server,
     // and include the original url in path and Host headers
-    if (eventSourceInitDict &#x26;&#x26; eventSourceInitDict.proxy) {
+    if (eventSourceInitDict &amp;&amp; eventSourceInitDict.proxy) {
       var proxy = parse(eventSourceInitDict.proxy)
       options.path = url
       options.headers.Host = options.host
@@ -450,7 +443,7 @@
     }
 
     // If https options are specified, merge them into the request options
-    if (eventSourceInitDict &#x26;&#x26; eventSourceInitDict.https) {
+    if (eventSourceInitDict &amp;&amp; eventSourceInitDict.https) {
       for (var optName in eventSourceInitDict.https) {
         if (httpsOptions.indexOf(optName) === -1) {
           continue
@@ -468,7 +461,7 @@
       if (res.statusCode === 301 || res.statusCode === 307) {
         if (!res.headers.location) {
           // Server sent redirect response without Location header.
-          _emit(&#x27;error&#x27;, new Event(&#x27;error&#x27;, {status: res.statusCode}))
+          _emit('error', new Event('error', {status: res.statusCode}))
           return
         }
         if (res.statusCode === 307) reconnectUrl = url
@@ -478,28 +471,28 @@
       }
 
       if (res.statusCode !== 200) {
-        _emit(&#x27;error&#x27;, new Event(&#x27;error&#x27;, {status: res.statusCode}))
+        _emit('error', new Event('error', {status: res.statusCode}))
         return self.close()
       }
 
       readyState = EventSource.OPEN
-      res.on(&#x27;close&#x27;, function () {
-        res.removeAllListeners(&#x27;close&#x27;)
-        res.removeAllListeners(&#x27;end&#x27;)
+      res.on('close', function () {
+        res.removeAllListeners('close')
+        res.removeAllListeners('end')
         onConnectionClosed()
       })
 
-      res.on(&#x27;end&#x27;, function () {
-        res.removeAllListeners(&#x27;close&#x27;)
-        res.removeAllListeners(&#x27;end&#x27;)
+      res.on('end', function () {
+        res.removeAllListeners('close')
+        res.removeAllListeners('end')
         onConnectionClosed()
       })
-      _emit(&#x27;open&#x27;, new Event(&#x27;open&#x27;))
+      _emit('open', new Event('open'))
 
-      // text/event-stream parser adapted from webkit&#x27;s
+      // text/event-stream parser adapted from webkit's
       // Source/WebCore/page/EventSource.cpp
-      var buf = &#x27;&#x27;
-      res.on(&#x27;data&#x27;, function (chunk) {
+      var buf = ''
+      res.on('data', function (chunk) {
         buf += chunk
 
         var pos = 0
@@ -543,7 +536,7 @@
     </h2>
     <ul>
     <li>description and source-code<pre class="apidocCodePre">function addEventListener(type, listener) {
-  if (typeof listener === &#x27;function&#x27;) {
+  if (typeof listener === 'function') {
     // store a reference so we can return the original function again
     listener._listener = listener
     this.on(type, listener)
@@ -562,7 +555,7 @@
     </h2>
     <ul>
     <li>description and source-code<pre class="apidocCodePre">function removeEventListener(type, listener) {
-  if (typeof listener === &#x27;function&#x27;) {
+  if (typeof listener === 'function') {
     listener._listener = undefined
     this.removeListener(type, listener)
   }
@@ -585,3 +578,4 @@
     ]
 </div>
 </div>
+</body></html>
